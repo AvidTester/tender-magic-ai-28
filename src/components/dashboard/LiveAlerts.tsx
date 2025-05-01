@@ -1,111 +1,105 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Clock, FileWarning, AlertCircle, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Bell, AlertTriangle, Clock, FileText, CheckCircle, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
-// Sample alerts data
-const alerts = [
-  {
-    id: 'alert-1',
-    title: '3 tenders approaching deadline in 3 days',
-    description: 'Contact vendors and ensure submissions are received.',
-    type: 'warning',
-    badge: 'DUE SOON',
-    link: '/create-tender',
-    icon: Clock
-  },
-  {
-    id: 'alert-2',
-    title: '2 vendors missing required documents',
-    description: 'Technical documents not submitted for IT Infrastructure tender.',
-    type: 'error',
-    badge: 'MISSING FILES',
-    link: '/vendors',
-    icon: FileText
-  },
-  {
-    id: 'alert-3',
-    title: '4 new vendors need verification',
-    description: 'Review and verify vendor credentials to enable submissions.',
-    type: 'info',
-    badge: 'ACTION REQUIRED',
-    link: '/vendors?status=unverified',
-    icon: CheckCircle
-  }
-];
+type Alert = {
+  id: string;
+  icon: React.ReactNode;
+  message: string;
+  type: 'deadline' | 'document' | 'evaluation' | 'verification';
+  badge: string;
+  badgeColor: string;
+  action?: string;
+};
 
 export function LiveAlerts() {
-  const [visibleAlerts, setVisibleAlerts] = React.useState(alerts);
+  // In a real app, these would come from an API
+  const alerts: Alert[] = [
+    {
+      id: "alert-1",
+      icon: <Clock className="h-5 w-5 text-amber-500" />,
+      message: "3 tenders approaching deadline in 3 days",
+      type: "deadline",
+      badge: "DUE SOON",
+      badgeColor: "bg-amber-100 text-amber-800",
+      action: "View Tenders"
+    },
+    {
+      id: "alert-2",
+      icon: <FileWarning className="h-5 w-5 text-red-500" />,
+      message: "2 vendors missing required documents for IT Infrastructure tender",
+      type: "document",
+      badge: "MISSING FILES",
+      badgeColor: "bg-red-100 text-red-800",
+      action: "Send Reminder"
+    },
+    {
+      id: "alert-3",
+      icon: <AlertCircle className="h-5 w-5 text-purple-500" />,
+      message: "1 evaluation flagged by AI for irregular scoring patterns",
+      type: "evaluation",
+      badge: "AI FLAG",
+      badgeColor: "bg-purple-100 text-purple-800",
+      action: "Review"
+    },
+    {
+      id: "alert-4",
+      icon: <UserCheck className="h-5 w-5 text-blue-500" />,
+      message: "4 new vendors awaiting verification before they can submit",
+      type: "verification",
+      badge: "ACTION REQUIRED",
+      badgeColor: "bg-blue-100 text-blue-800",
+      action: "Verify Now"
+    }
+  ];
 
-  const dismissAlert = (alertId: string) => {
-    setVisibleAlerts(visibleAlerts.filter(alert => alert.id !== alertId));
+  const handleDismiss = (id: string) => {
+    console.log(`Dismissed alert: ${id}`);
+    // In a real app, you would remove the alert from state/backend
   };
-
-  if (visibleAlerts.length === 0) {
-    return null;
-  }
 
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center text-xl">
-          <Bell className="mr-2 h-5 w-5" />
+        <CardTitle className="text-xl flex items-center">
+          <AlertCircle className="mr-2 h-5 w-5 text-amber-500" />
           Live Alerts
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
-          {visibleAlerts.map((alert) => (
-            <Alert 
+        <div className="space-y-4">
+          {alerts.map((alert) => (
+            <div 
               key={alert.id}
-              className={`
-                flex items-center justify-between
-                ${alert.type === 'error' ? 'border-red-500 bg-red-50' : ''}
-                ${alert.type === 'warning' ? 'border-amber-500 bg-amber-50' : ''}
-                ${alert.type === 'info' ? 'border-blue-500 bg-blue-50' : ''}
-              `}
+              className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg border border-muted"
             >
-              <div className="flex items-start">
-                <alert.icon className={`h-5 w-5 mr-2 mt-0.5
-                  ${alert.type === 'error' ? 'text-red-500' : ''}
-                  ${alert.type === 'warning' ? 'text-amber-500' : ''}
-                  ${alert.type === 'info' ? 'text-blue-500' : ''}
-                `} />
-                <div>
-                  <AlertTitle className="flex items-center gap-2">
-                    {alert.title}
-                    <Badge className={`
-                      text-xs font-medium
-                      ${alert.type === 'error' ? 'bg-red-500' : ''}
-                      ${alert.type === 'warning' ? 'bg-amber-500' : ''}
-                      ${alert.type === 'info' ? 'bg-blue-500' : ''}
-                    `}>
-                      {alert.badge}
-                    </Badge>
-                  </AlertTitle>
-                  <AlertDescription>
-                    {alert.description}
-                    <Link to={alert.link}>
-                      <Button variant="link" className="p-0 h-auto" size="sm">
-                        Take action
-                      </Button>
-                    </Link>
-                  </AlertDescription>
+              <div className="mt-0.5">{alert.icon}</div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${alert.badgeColor}`}>
+                    {alert.badge}
+                  </span>
                 </div>
+                <p className="text-sm font-medium">{alert.message}</p>
               </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-8 w-8 p-0 rounded-full" 
-                onClick={() => dismissAlert(alert.id)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </Alert>
+              <div className="flex items-center gap-2">
+                {alert.action && (
+                  <Button variant="outline" size="sm" className="h-8">
+                    {alert.action}
+                  </Button>
+                )}
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8"
+                  onClick={() => handleDismiss(alert.id)}
+                >
+                  Dismiss
+                </Button>
+              </div>
+            </div>
           ))}
         </div>
       </CardContent>
