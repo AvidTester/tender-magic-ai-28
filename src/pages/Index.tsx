@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StatCards } from '@/components/dashboard/StatCards';
@@ -16,6 +16,8 @@ import { PlusCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Index() {
+  const [timeFilter, setTimeFilter] = useState('7days');
+  
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -36,7 +38,7 @@ export default function Index() {
         
         {/* Charts Section */}
         <div className="grid grid-cols-1 gap-6">
-          <DashboardCharts />
+          <DashboardCharts timeFilter={timeFilter} />
         </div>
         
         {/* Activity and Timeline Section */}
