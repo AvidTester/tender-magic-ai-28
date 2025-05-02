@@ -145,8 +145,8 @@ const EvaluateTender = () => {
   // Calculate total score
   const calculateTotalScore = () => {
     return tender.evaluationCriteria.reduce((total, criteria) => {
-      const scoreValue = form.watch(`score_${criteria.id}`);
-      return total + (scoreValue ? parseFloat(scoreValue) : 0);
+      const scoreValue = form.watch(`score_${criteria.id}`) || '0';
+      return total + (parseFloat(scoreValue) || 0);
     }, 0);
   };
   

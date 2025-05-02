@@ -43,7 +43,8 @@ import {
   AlignLeft,
   FileText,
   CheckCircle,
-  HelpCircle
+  HelpCircle,
+  Save
 } from 'lucide-react';
 
 // Form schema
@@ -68,6 +69,7 @@ const CreateTender = () => {
   const { toast } = useToast();
   const [step, setStep] = useState(1);
   const totalSteps = 5;
+  const [isDraft, setIsDraft] = useState(false);
   
   // Steps and their icons
   const steps = [
@@ -109,6 +111,18 @@ const CreateTender = () => {
       setStep(step - 1);
     }
   };
+  
+  const saveDraft = () => {
+    // Get current form values regardless of validation
+    const formValues = form.getValues();
+    console.log('Draft saved:', formValues);
+    setIsDraft(true);
+    
+    toast({
+      title: "Draft saved",
+      description: "Your tender has been saved as a draft and can be edited later.",
+    });
+  };
 
   // Categories for selection
   const categories = [
@@ -127,9 +141,14 @@ const CreateTender = () => {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Create New Tender</h1>
-          <p className="text-muted-foreground mt-2">
-            Follow the step-by-step process to create and publish a new tender.
-          </p>
+          <div className="flex justify-between items-center mt-2">
+            <p className="text-muted-foreground">
+              Follow the step-by-step process to create and publish a new tender.
+            </p>
+            {isDraft && (
+              <Badge variant="secondary">Draft</Badge>
+            )}
+          </div>
         </div>
 
         {/* Steps indicator */}
@@ -493,7 +512,9 @@ const CreateTender = () => {
                     <Button
                       type="button"
                       variant="outline"
+                      onClick={saveDraft}
                     >
+                      <Save className="h-4 w-4 mr-2" />
                       Save Draft
                     </Button>
                     <Button type="submit">

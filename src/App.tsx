@@ -67,7 +67,7 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/tenders/:id" element={
-              <ProtectedRoute allowedRoles={['admin']}>
+              <ProtectedRoute allowedRoles={['admin', 'vendor', 'evaluator']}>
                 <TenderDetail />
               </ProtectedRoute>
             } />
@@ -108,11 +108,6 @@ const App = () => (
                 <AvailableTenders />
               </ProtectedRoute>
             } />
-            <Route path="/tenders/:id" element={
-              <ProtectedRoute allowedRoles={['vendor']}>
-                <TenderDetail />
-              </ProtectedRoute>
-            } />
             <Route path="/apply-tender/:id" element={
               <ProtectedRoute allowedRoles={['vendor']}>
                 <ApplyTender />
@@ -125,11 +120,6 @@ const App = () => (
             } />
             
             {/* Evaluator only routes */}
-            <Route path="/tenders/:id" element={
-              <ProtectedRoute allowedRoles={['evaluator']}>
-                <TenderDetail />
-              </ProtectedRoute>
-            } />
             <Route path="/evaluate-tender/:id" element={
               <ProtectedRoute allowedRoles={['evaluator']}>
                 <EvaluateTender />

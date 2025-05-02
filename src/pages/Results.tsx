@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,16 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { toast } from '@/hooks/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
 
 // Mock tender evaluation results data
 const tenderResults = [
@@ -94,6 +104,44 @@ const tenderResults = [
 ];
 
 const Results = () => {
+  const [results, setResults] = useState(tenderResults);
+  const [selectingWinner, setSelectingWinner] = useState<{ tenderId: number | null, submissionId: number | null }>({
+    tenderId: null,
+    submissionId: null
+  });
+  
+  const handleSelectWinner = (tenderId: number, submissionId: number) => {
+    setSelectingWinner({ tenderId, submissionId });
+  };
+  
+  const confirmWinner = () => {
+    if (selectingWinner.tenderId && selectingWinner.submissionId) {
+      setResults(prevResults => 
+        prevResults.map(tender => {
+          if (tender.id === selectingWinner.tenderId) {
+            const winningSubmission = tender.submissions.find(
+              sub => sub.id === selectingWinner.submissionId
+            );
+            
+            return {
+              ...tender,
+              status: 'Winner Selected',
+              winner: winningSubmission?.vendorName
+            };
+          }
+          return tender;
+        })
+      );
+      
+      toast({
+        title: "Winner Selected",
+        description: "The tender winner has been successfully selected and notifications will be sent to all participants.",
+      });
+      
+      setSelectingWinner({ tenderId: null, submissionId: null });
+    }
+  };
+
   return (
     <MainLayout>
       <div className="container mx-auto py-6">
@@ -103,7 +151,7 @@ const Results = () => {
         </div>
 
         <div className="space-y-6">
-          {tenderResults.map((tender) => (
+          {results.map((tender) => (
             <Card key={tender.id} className="overflow-hidden">
               <CardHeader className="bg-muted/30">
                 <div className="flex justify-between items-center">
@@ -138,6 +186,9 @@ const Results = () => {
                             {submission.rank}
                           </div>
                           <span className="font-medium">{submission.vendorName}</span>
+                          {tender.winner === submission.vendorName && (
+                            <Badge variant="secondary" className="ml-2">Winner</Badge>
+                          )}
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-lg">{submission.score}</span>
@@ -166,6 +217,19 @@ const Results = () => {
                           </div>
                         ))}
                       </div>
+                      
+                      {tender.status !== 'Winner Selected' && (
+                        <div className="mt-4 flex justify-end">
+                          <Button 
+                            size="sm" 
+                            onClick={() => handleSelectWinner(tender.id, submission.id)}
+                            variant={submission.rank === 1 ? "default" : "outline"}
+                          >
+                            <Trophy className="h-4 w-4 mr-2" />
+                            Select as Winner
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -173,8 +237,15 @@ const Results = () => {
 
               <CardFooter className="border-t bg-muted/30 p-4">
                 {tender.status === 'Pending Decision' ? (
-                  <div className="w-full flex justify-end">
-                    <Button className="gap-2">
+                  <div className="w-full flex justify-between items-center">
+                    <div className="text-sm text-muted-foreground">
+                      <InfoIcon className="h-4 w-4 inline mr-1" />
+                      Select a winner to complete the tender process
+                    </div>
+                    <Button 
+                      className="gap-2"
+                      onClick={() => handleSelectWinner(tender.id, tender.submissions[0].id)}
+                    >
                       <Trophy className="h-4 w-4" />
                       Select Winner
                     </Button>
@@ -195,6 +266,51 @@ const Results = () => {
           ))}
         </div>
       </div>
+      
+      {/* Select Winner Dialog */}
+      <Dialog 
+        open={selectingWinner.tenderId !== null} 
+        onOpenChange={(open) => !open && setSelectingWinner({ tenderId: null, submissionId: null })}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Winner Selection</DialogTitle>
+            <DialogDescription>
+              You are about to select a winner for this tender. This action will notify all participants and cannot be easily reversed.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectingWinner.tenderId && selectingWinner.submissionId && (
+            <div className="py-4">
+              <div className="flex items-center gap-3 p-3 bg-primary/5 rounded-md">
+                <Trophy className="h-5 w-5 text-amber-500" />
+                <div>
+                  <div className="font-medium">
+                    {results
+                      .find(tender => tender.id === selectingWinner.tenderId)?.submissions
+                      .find(sub => sub.id === selectingWinner.submissionId)?.vendorName}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Score: {results
+                      .find(tender => tender.id === selectingWinner.tenderId)?.submissions
+                      .find(sub => sub.id === selectingWinner.submissionId)?.score} points
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button onClick={confirmWinner}>
+              <Award className="h-4 w-4 mr-2" />
+              Confirm Winner
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 };
