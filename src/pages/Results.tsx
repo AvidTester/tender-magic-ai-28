@@ -113,7 +113,7 @@ const Results = () => {
                       {tender.evaluationsCompleted} of {tender.evaluators} evaluations completed
                     </div>
                   </div>
-                  <Badge variant={tender.status === 'Winner Selected' ? 'success' : 'secondary'}>
+                  <Badge variant={tender.status === 'Winner Selected' ? 'secondary' : 'default'}>
                     {tender.status}
                   </Badge>
                 </div>

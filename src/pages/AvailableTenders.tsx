@@ -12,9 +12,11 @@ import {
   InfoIcon,
   Calendar,
   Building,
-  Timer
+  Timer,
+  Eye
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 // Mock tender data
 const tenders = [
@@ -118,14 +120,18 @@ const AvailableTenders = () => {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between items-center border-t pt-4">
-        <Button variant="ghost">
-          <InfoIcon className="mr-2 h-4 w-4" />
-          Details
+        <Button variant="ghost" asChild>
+          <Link to={`/tenders/${tender.id}`}>
+            <Eye className="mr-2 h-4 w-4" />
+            View Details
+          </Link>
         </Button>
         {isVendor && (
-          <Button>
-            <SendHorizonal className="mr-2 h-4 w-4" />
-            Apply
+          <Button asChild>
+            <Link to={`/apply-tender/${tender.id}`}>
+              <SendHorizonal className="mr-2 h-4 w-4" />
+              Apply
+            </Link>
           </Button>
         )}
       </CardFooter>

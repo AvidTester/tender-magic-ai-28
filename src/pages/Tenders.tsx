@@ -132,8 +132,8 @@ const Tenders = () => {
           </Button>
         </div>
         <Button variant="outline" size="sm" asChild>
-          <Link to={`/tenders/${tender.id}/submissions`}>
-            View Submissions
+          <Link to={`/tenders/${tender.id}`}>
+            View Details
           </Link>
         </Button>
       </CardFooter>

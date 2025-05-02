@@ -25,6 +25,9 @@ import MyEvaluations from "./pages/MyEvaluations";
 import CompletedEvaluations from "./pages/CompletedEvaluations";
 import Tenders from "./pages/Tenders";
 import Results from "./pages/Results";
+import TenderDetail from "./pages/TenderDetail";
+import ApplyTender from "./pages/ApplyTender";
+import EvaluateTender from "./pages/EvaluateTender";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +64,11 @@ const App = () => (
             <Route path="/tenders" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <Tenders />
+              </ProtectedRoute>
+            } />
+            <Route path="/tenders/:id" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <TenderDetail />
               </ProtectedRoute>
             } />
             <Route path="/create-tender" element={
@@ -100,6 +108,16 @@ const App = () => (
                 <AvailableTenders />
               </ProtectedRoute>
             } />
+            <Route path="/tenders/:id" element={
+              <ProtectedRoute allowedRoles={['vendor']}>
+                <TenderDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/apply-tender/:id" element={
+              <ProtectedRoute allowedRoles={['vendor']}>
+                <ApplyTender />
+              </ProtectedRoute>
+            } />
             <Route path="/my-submissions" element={
               <ProtectedRoute allowedRoles={['vendor']}>
                 <MySubmissions />
@@ -107,6 +125,16 @@ const App = () => (
             } />
             
             {/* Evaluator only routes */}
+            <Route path="/tenders/:id" element={
+              <ProtectedRoute allowedRoles={['evaluator']}>
+                <TenderDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/evaluate-tender/:id" element={
+              <ProtectedRoute allowedRoles={['evaluator']}>
+                <EvaluateTender />
+              </ProtectedRoute>
+            } />
             <Route path="/my-evaluations" element={
               <ProtectedRoute allowedRoles={['evaluator']}>
                 <MyEvaluations />
