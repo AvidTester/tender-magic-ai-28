@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter } from '@/components/ui/sidebar';
-import { AppSidebar } from '@/components/layout/AppSidebar';
+import { RoleBasedNavigation } from '@/components/layout/RoleBasedNavigation';
 import { Header } from '@/components/layout/Header';
 import { SidebarProvider } from '@/components/ui/sidebar';
 
@@ -13,7 +12,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-slate-50">
-        <AppSidebar />
+        <RoleBasedNavigation />
         <div className="flex-1 flex flex-col">
           <Header />
           <main className="flex-1 p-6 overflow-auto">

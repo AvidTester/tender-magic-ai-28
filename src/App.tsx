@@ -3,8 +3,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+
+// Pages
 import Index from "./pages/Index";
+import Login from "./pages/Login";
 import CreateTender from "./pages/CreateTender";
 import Submissions from "./pages/Submissions";
 import Vendors from "./pages/Vendors";
@@ -13,28 +18,100 @@ import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
+import Forbidden from "./pages/Forbidden";
+import AvailableTenders from "./pages/AvailableTenders";
+import MySubmissions from "./pages/MySubmissions";
+import MyEvaluations from "./pages/MyEvaluations";
+import CompletedEvaluations from "./pages/CompletedEvaluations";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/create-tender" element={<CreateTender />} />
-          <Route path="/submissions" element={<Submissions />} />
-          <Route path="/vendors" element={<Vendors />} />
-          <Route path="/evaluations" element={<Evaluations />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/help" element={<Help />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/forbidden" element={<Forbidden />} />
+            
+            {/* Protected routes for all authenticated users */}
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Index />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } />
+            <Route path="/help" element={
+              <ProtectedRoute>
+                <Help />
+              </ProtectedRoute>
+            } />
+            
+            {/* Admin only routes */}
+            <Route path="/create-tender" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <CreateTender />
+              </ProtectedRoute>
+            } />
+            <Route path="/submissions" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Submissions />
+              </ProtectedRoute>
+            } />
+            <Route path="/vendors" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Vendors />
+              </ProtectedRoute>
+            } />
+            <Route path="/evaluations" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Evaluations />
+              </ProtectedRoute>
+            } />
+            <Route path="/reports" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Reports />
+              </ProtectedRoute>
+            } />
+            
+            {/* Vendor only routes */}
+            <Route path="/available-tenders" element={
+              <ProtectedRoute allowedRoles={['vendor']}>
+                <AvailableTenders />
+              </ProtectedRoute>
+            } />
+            <Route path="/my-submissions" element={
+              <ProtectedRoute allowedRoles={['vendor']}>
+                <MySubmissions />
+              </ProtectedRoute>
+            } />
+            
+            {/* Evaluator only routes */}
+            <Route path="/my-evaluations" element={
+              <ProtectedRoute allowedRoles={['evaluator']}>
+                <MyEvaluations />
+              </ProtectedRoute>
+            } />
+            <Route path="/completed-evaluations" element={
+              <ProtectedRoute allowedRoles={['evaluator']}>
+                <CompletedEvaluations />
+              </ProtectedRoute>
+            } />
+            
+            {/* Catch-all route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
