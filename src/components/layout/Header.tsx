@@ -25,9 +25,16 @@ import {
 } from '@/components/ui/popover';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserAvatar } from '@/components/auth/UserAvatar';
+import { useNavigate } from 'react-router-dom';
 
 export function Header() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
   
   return (
     <header className="border-b bg-white p-4">
@@ -114,7 +121,7 @@ export function Header() {
                 <DropdownMenuItem>Preferences</DropdownMenuItem>
                 {user.role === 'admin' && <DropdownMenuItem>Team Management</DropdownMenuItem>}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout}>
+                <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </DropdownMenuItem>

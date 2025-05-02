@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Sidebar, 
   SidebarContent, 
@@ -60,12 +60,18 @@ const utilityMenuItems = [
 export function RoleBasedNavigation() {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   
   // If no user, don't render navigation
   if (!user) return null;
   
   // Get menu items based on user role
   const mainMenuItems = menuItemsByRole[user.role] || [];
+  
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <Sidebar>
@@ -142,7 +148,7 @@ export function RoleBasedNavigation() {
       </SidebarContent>
 
       <SidebarFooter className="p-4">
-        <SidebarMenuButton asChild onClick={logout}>
+        <SidebarMenuButton asChild onClick={handleLogout}>
           <button className="w-full flex items-center gap-2 text-sidebar-foreground hover:text-sidebar-accent-foreground">
             <LogOut className="h-5 w-5" />
             <span>Logout</span>
