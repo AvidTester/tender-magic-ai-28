@@ -6,15 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Download,
-  SendHorizonal,
-  Upload,
   InfoIcon,
   Calendar,
-  Building,
-  Timer
+  FilePlus,
+  Edit,
+  Eye,
+  Users
 } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 // Mock tender data
 const tenders = [
@@ -25,8 +24,8 @@ const tenders = [
     category: 'IT',
     status: 'Open',
     deadline: '2025-05-30',
-    budget: '$50,000',
-    organization: 'Ministry of Education'
+    submissions: 4,
+    evaluators: 2
   },
   {
     id: 2,
@@ -35,8 +34,8 @@ const tenders = [
     category: 'IT',
     status: 'Open',
     deadline: '2025-06-15',
-    budget: '$120,000',
-    organization: 'Department of Health'
+    submissions: 7,
+    evaluators: 3
   },
   {
     id: 3,
@@ -45,8 +44,8 @@ const tenders = [
     category: 'Construction',
     status: 'Open',
     deadline: '2025-07-01',
-    budget: '$2,500,000',
-    organization: 'City Council'
+    submissions: 3,
+    evaluators: 2
   },
   {
     id: 4,
@@ -55,8 +54,8 @@ const tenders = [
     category: 'Supply',
     status: 'Open',
     deadline: '2025-05-20',
-    budget: '$15,000',
-    organization: 'Ministry of Finance'
+    submissions: 5,
+    evaluators: 1
   },
   {
     id: 5,
@@ -65,69 +64,78 @@ const tenders = [
     category: 'IT',
     status: 'Open',
     deadline: '2025-06-10',
-    budget: '$85,000',
-    organization: 'Technology Department'
+    submissions: 6,
+    evaluators: 2
   },
   {
     id: 6,
     title: 'Building Renovation',
     description: 'Renovation of an existing government building, including structural repairs and interior updates.',
     category: 'Construction',
-    status: 'Open',
-    deadline: '2025-08-15',
-    budget: '$750,000',
-    organization: 'Public Works Department'
+    status: 'Closed',
+    deadline: '2025-04-15',
+    submissions: 8,
+    evaluators: 3
   },
 ];
 
-const AvailableTenders = () => {
-  const { user } = useAuth();
-  const isVendor = user?.role === 'vendor';
-
-  const filteredTendersByCategory = (category: string) => {
-    if (category === 'all') return tenders;
-    return tenders.filter(tender => tender.category.toLowerCase() === category.toLowerCase());
+const Tenders = () => {
+  const filteredTendersByStatus = (status: string) => {
+    if (status === 'all') return tenders;
+    return tenders.filter(tender => tender.status.toLowerCase() === status.toLowerCase());
   };
 
   const renderTenderCard = (tender: any) => (
-    <Card key={tender.id} className="flex flex-col">
+    <Card key={tender.id}>
       <CardHeader>
-        <CardTitle>{tender.title}</CardTitle>
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-xl">{tender.title}</CardTitle>
+          <Badge variant={tender.status === 'Open' ? 'default' : 'secondary'}>
+            {tender.status}
+          </Badge>
+        </div>
       </CardHeader>
-      <CardContent className="flex-1">
+      <CardContent>
         <p className="text-sm text-muted-foreground mb-4">
           {tender.description}
         </p>
-        <div className="space-y-3 text-sm">
+        <div className="grid grid-cols-2 gap-2 text-sm">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">Deadline:</span> {tender.deadline}
+            <span>Deadline: {tender.deadline}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Building className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">Organization:</span> {tender.organization}
+            <Badge variant="outline">{tender.category}</Badge>
           </div>
-          <div className="flex items-center gap-2">
-            <Timer className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">Budget:</span> {tender.budget}
+          <div className="flex items-center gap-2 mt-1">
+            <Users className="h-4 w-4 text-muted-foreground" />
+            <span>Evaluators: {tender.evaluators}</span>
           </div>
-        </div>
-        <div className="mt-4 flex items-center gap-2 flex-wrap">
-          <Badge variant="secondary">{tender.category}</Badge>
-          <Badge>{tender.status}</Badge>
+          <div className="flex items-center gap-2 mt-1">
+            <Badge variant="outline" className="bg-blue-50">Submissions: {tender.submissions}</Badge>
+          </div>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between items-center border-t pt-4">
-        <Button variant="ghost">
-          <InfoIcon className="mr-2 h-4 w-4" />
-          Details
-        </Button>
-        {isVendor && (
-          <Button>
-            <SendHorizonal className="mr-2 h-4 w-4" />
-            Apply
+      <CardFooter className="flex justify-between border-t pt-4">
+        <div className="flex gap-2">
+          <Button variant="ghost" size="sm" asChild>
+            <Link to={`/tenders/${tender.id}`}>
+              <Eye className="mr-2 h-4 w-4" />
+              View
+            </Link>
           </Button>
-        )}
+          <Button variant="ghost" size="sm" asChild>
+            <Link to={`/tenders/${tender.id}/edit`}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </Link>
+          </Button>
+        </div>
+        <Button variant="outline" size="sm" asChild>
+          <Link to={`/tenders/${tender.id}/submissions`}>
+            View Submissions
+          </Link>
+        </Button>
       </CardFooter>
     </Card>
   );
@@ -135,40 +143,41 @@ const AvailableTenders = () => {
   return (
     <MainLayout>
       <div className="container mx-auto py-6">
-        <div className="mb-4">
-          <h1 className="text-2xl font-bold">Available Tenders</h1>
-          <p className="text-muted-foreground">Browse and apply for open tenders.</p>
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">Tenders</h1>
+            <p className="text-muted-foreground">Manage all procurement tenders</p>
+          </div>
+          <Button asChild>
+            <Link to="/create-tender">
+              <FilePlus className="mr-2 h-4 w-4" />
+              Create Tender
+            </Link>
+          </Button>
         </div>
 
         <Tabs defaultValue="all" className="w-full">
           <TabsList>
             <TabsTrigger value="all">All Tenders</TabsTrigger>
-            <TabsTrigger value="it">IT Services</TabsTrigger>
-            <TabsTrigger value="construction">Construction</TabsTrigger>
-            <TabsTrigger value="supply">Supply Chain</TabsTrigger>
+            <TabsTrigger value="open">Open</TabsTrigger>
+            <TabsTrigger value="closed">Closed</TabsTrigger>
           </TabsList>
           
           <TabsContent value="all" className="mt-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {filteredTendersByCategory('all').map(renderTenderCard)}
+              {filteredTendersByStatus('all').map(renderTenderCard)}
             </div>
           </TabsContent>
           
-          <TabsContent value="it" className="mt-4">
+          <TabsContent value="open" className="mt-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {filteredTendersByCategory('it').map(renderTenderCard)}
+              {filteredTendersByStatus('open').map(renderTenderCard)}
             </div>
           </TabsContent>
           
-          <TabsContent value="construction" className="mt-4">
+          <TabsContent value="closed" className="mt-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {filteredTendersByCategory('construction').map(renderTenderCard)}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="supply" className="mt-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {filteredTendersByCategory('supply').map(renderTenderCard)}
+              {filteredTendersByStatus('closed').map(renderTenderCard)}
             </div>
           </TabsContent>
         </Tabs>
@@ -177,4 +186,4 @@ const AvailableTenders = () => {
   );
 };
 
-export default AvailableTenders;
+export default Tenders;

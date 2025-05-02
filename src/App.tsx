@@ -23,6 +23,8 @@ import AvailableTenders from "./pages/AvailableTenders";
 import MySubmissions from "./pages/MySubmissions";
 import MyEvaluations from "./pages/MyEvaluations";
 import CompletedEvaluations from "./pages/CompletedEvaluations";
+import Tenders from "./pages/Tenders";
+import Results from "./pages/Results";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +58,11 @@ const App = () => (
             } />
             
             {/* Admin only routes */}
+            <Route path="/tenders" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Tenders />
+              </ProtectedRoute>
+            } />
             <Route path="/create-tender" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <CreateTender />
@@ -74,6 +81,11 @@ const App = () => (
             <Route path="/evaluations" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <Evaluations />
+              </ProtectedRoute>
+            } />
+            <Route path="/results" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Results />
               </ProtectedRoute>
             } />
             <Route path="/reports" element={

@@ -11,7 +11,10 @@ import {
   SidebarHeader, 
   SidebarMenu, 
   SidebarMenuItem, 
-  SidebarMenuButton
+  SidebarMenuButton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton
 } from '@/components/ui/sidebar';
 import { 
   Home, 
@@ -24,19 +27,29 @@ import {
   HelpCircle, 
   LogOut, 
   Briefcase, 
-  ClipboardCheck
+  ClipboardCheck,
+  ListOrdered
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import type { UserRole } from '@/contexts/AuthContext';
 
 // Menu items by role
-const menuItemsByRole: Record<UserRole, Array<{title: string; icon: React.FC<any>; path: string}>> = {
+const menuItemsByRole: Record<UserRole, Array<{title: string; icon: React.FC<any>; path: string; subItems?: Array<{title: string; path: string}>}>> = {
   admin: [
     { title: 'Dashboard', icon: Home, path: '/' },
-    { title: 'Create Tender', icon: FilePlus, path: '/create-tender' },
+    { 
+      title: 'Tenders', 
+      icon: Briefcase, 
+      path: '/tenders',
+      subItems: [
+        { title: 'All Tenders', path: '/tenders' },
+        { title: 'Create Tender', path: '/create-tender' },
+      ]
+    },
     { title: 'Submissions', icon: Send, path: '/submissions' },
     { title: 'Vendors', icon: Users, path: '/vendors' },
     { title: 'Evaluations', icon: Award, path: '/evaluations' },
+    { title: 'Results', icon: ListOrdered, path: '/results' },
     { title: 'Reports', icon: FileCheck, path: '/reports' },
   ],
   vendor: [
@@ -73,6 +86,15 @@ export function RoleBasedNavigation() {
     navigate('/login');
   };
 
+  const isSubPathActive = (path: string, subPath: string) => {
+    return location.pathname === subPath;
+  };
+
+  const isPathActive = (path: string) => {
+    if (path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(path);
+  };
+
   return (
     <Sidebar>
       <SidebarHeader className="p-4">
@@ -91,15 +113,46 @@ export function RoleBasedNavigation() {
             <SidebarMenu>
               {mainMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location.pathname === item.path}
-                  >
-                    <Link to={item.path}>
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+                  {!item.subItems ? (
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isPathActive(item.path)}
+                    >
+                      <Link to={item.path}>
+                        <item.icon className="h-5 w-5" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  ) : (
+                    <>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isPathActive(item.path)}
+                      >
+                        <Link to={item.path}>
+                          <item.icon className="h-5 w-5" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+
+                      {isPathActive(item.path) && (
+                        <SidebarMenuSub>
+                          {item.subItems.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={isSubPathActive(item.path, subItem.path)}
+                              >
+                                <Link to={subItem.path}>
+                                  {subItem.title}
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      )}
+                    </>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -148,11 +201,9 @@ export function RoleBasedNavigation() {
       </SidebarContent>
 
       <SidebarFooter className="p-4">
-        <SidebarMenuButton asChild onClick={handleLogout}>
-          <button className="w-full flex items-center gap-2 text-sidebar-foreground hover:text-sidebar-accent-foreground">
-            <LogOut className="h-5 w-5" />
-            <span>Logout</span>
-          </button>
+        <SidebarMenuButton onClick={handleLogout}>
+          <LogOut className="h-5 w-5" />
+          <span>Logout</span>
         </SidebarMenuButton>
       </SidebarFooter>
     </Sidebar>
